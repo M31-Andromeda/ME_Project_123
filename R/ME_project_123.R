@@ -28,6 +28,7 @@ if (!require("MASS")) {
   library(MASS)
 }
 
+#!!CAMBIA A TU UBI DE DATA-SET!!
 df <- read.csv("C:/Users/santi/Desktop/clases/ME/proyecto/Data-Set/student_exam_performance.csv", na.strings = c("", "NA"))
 
 #============================
