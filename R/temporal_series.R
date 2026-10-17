@@ -7,5 +7,4 @@ for (p in paquetes) {
   }
 }
 
-#!!CAMBIA A TU UBI DE DATA-SET!!
-df2 <- read.csv("C:/Users/macar/Documents/ME/student_learning_interaction_dataset.csv", na.strings = c("", "NA"))
+df2 <- read.csv("data/raw/student_exam_performance.csv")

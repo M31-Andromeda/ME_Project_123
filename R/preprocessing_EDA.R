@@ -7,8 +7,7 @@ for (p in paquetes) {
   }
 }
 
-#!!CAMBIA A TU UBI DE DATA-SET!!
-df <- read.csv("C:/Users/santi/Desktop/clases/ME/proyecto/Data-Set/student_exam_performance.csv", na.strings = c("", "NA"))
+df <- read.csv("data/raw/student_exam_performance.csv", na.strings = c("", "NA"))
 
 SEMILLA        <- 123
 set.seed(SEMILLA)
@@ -94,7 +93,7 @@ df_imputado <- complete(mice(df_clean, m = 1, maxit = 5, seed = SEMILLA))
 df_final <- df_imputado
 
 cat("Generando gráficos univariados numéricos")
-if(exportar_pdf)  pdf("Fase1_Histogramas_Numericas.pdf", width = 8, height = 6)
+if(exportar_pdf)  pdf("output/Fase1_Histogramas_Numericas.pdf", width = 8, height = 6)
 for (var in vars_numericas) {
   p <- ggplot(df_final, aes(x = .data[[var]])) +
     geom_histogram(aes(y = after_stat(density)), bins = 30, fill = "skyblue", color = "black", alpha = 0.7) +
@@ -106,7 +105,7 @@ for (var in vars_numericas) {
 if(exportar_pdf) dev.off()
 
 cat("Generando Box-plots univariados")
-if(exportar_pdf) pdf("Fase1_Boxplots_Numericas.pdf", width = 8, height = 6)
+if(exportar_pdf) pdf("output/Fase1_Boxplots_Numericas.pdf", width = 8, height = 6)
 for (var in vars_numericas) {
   p <- ggplot(df_final, aes(y = .data[[var]])) +
     geom_boxplot(fill = "lightgreen", color = "darkgreen", outlier.color = "red", outlier.size = 2, outlier.alpha = 0.6) +
@@ -118,7 +117,7 @@ for (var in vars_numericas) {
 if(exportar_pdf) dev.off()
 
 cat("Generando gráficos univariados categóricos")
-if(exportar_pdf) pdf("Fase1_Bar_plots_Categoricas.pdf", width = 8, height = 6) # Activar para exportar
+if(exportar_pdf) pdf("output/Fase1_Bar_plots_Categoricas.pdf", width = 8, height = 6) # Activar para exportar
 for (var in vars_categoricas) {
   p <- ggplot(df_final, aes(x = .data[[var]], fill = .data[[var]])) +
     geom_bar(color = "black", alpha = 0.8) +
@@ -137,7 +136,7 @@ cat("Generando Heatmap Numérico (Pearson)")
 matriz_num <- cor(df_final %>% dplyr::select(all_of(c(vars_numericas, "exam_score"))), 
                   use = "complete.obs", method = "pearson")
 
-if(exportar_pdf) pdf("Fase2_Heatmap_Numerico.pdf", width = 12, height = 12)
+if(exportar_pdf) pdf("output/Fase2_Heatmap_Numerico.pdf", width = 12, height = 12)
 corrplot(matriz_num, method = "color", type = "upper", 
          tl.col = "black", tl.srt = 45, addCoef.col = "black", 
          number.cex = 0.6, title = "Correlación Pearson (Predictoras + Target)", 
@@ -157,7 +156,7 @@ cramerVMatrix <- function(data) {
 
 matriz_cramer <- cramerVMatrix(df_final %>% dplyr::select(all_of(vars_categoricas)))
 
-if(exportar_pdf) pdf("Fase2_Heatmap_CramerV.pdf", width = 12, height = 12)
+if(exportar_pdf) pdf("output/Fase2_Heatmap_CramerV.pdf", width = 12, height = 12)
 corrplot(matriz_cramer, method = "color", type = "upper", 
          tl.col = "black", tl.srt = 45, addCoef.col = "black", 
          number.cex = 0.6, 
@@ -173,7 +172,7 @@ if(exportar_pdf) dev.off()
  
 cat("BLOQUE A.1: Numérico vs exam_score (Scatterplots + Pearson)")
 
-if(exportar_pdf) pdf("Fase3_exam_score_Scatterplots.pdf", width = 8, height = 6)
+if(exportar_pdf) pdf("output/Fase3_exam_score_Scatterplots.pdf", width = 8, height = 6)
 for (var in vars_numericas) {
   
   cor_val <- cor(df_final[[var]], df_final$exam_score, use = "complete.obs")
@@ -192,7 +191,7 @@ dev.off()
 
 cat("BLOQUE A.2: Categórico vs exam_score (Boxplots + ANOVA + Post-Hoc)")
 
-if(exportar_pdf) pdf("Fase3_exam_score_Boxplots_ANOVA.pdf", width = 10, height = 6)
+if(exportar_pdf) pdf("output/Fase3_exam_score_Boxplots_ANOVA.pdf", width = 10, height = 6)
 for (var in vars_categoricas) {
   # Prueba ANOVA
   formula_anova <- as.formula(paste("exam_score ~", var))
@@ -226,7 +225,7 @@ if(exportar_pdf) dev.off()
 # ------------------------------------------------------------------------------
 cat("BLOQUE B.1: Numérico vs pass_status (Boxplots + T-Student)")
 
-if(exportar_pdf) pdf("Fase3.2_pass_status_Boxplots_TTest.pdf", width = 8, height = 6)
+if(exportar_pdf) pdf("output/Fase3.2_pass_status_Boxplots_TTest.pdf", width = 8, height = 6)
 for (var in vars_numericas) {
   # Prueba T de Student
   formula_t <- as.formula(paste(var, "~ pass_status"))
@@ -250,7 +249,7 @@ if(exportar_pdf) dev.off()
 
 cat("BLOQUE B.2: Categórico vs pass_status (Mosaic Plots + Chi-Cuadrado)")
 
-if(exportar_pdf) pdf("Fase3.2_pass_status_MosaicPlots.pdf", width = 10, height = 8)
+if(exportar_pdf) pdf("output/Fase3.2_pass_status_MosaicPlots.pdf", width = 10, height = 8)
 for (var in vars_categoricas) {
   # Tabla de Contingencia y Prueba Chi-Cuadrado
   tabla_cont <- table(df_final[[var]], df_final$pass_status)
@@ -339,7 +338,7 @@ pares_num_cat <- list(
 # -------------------------------------------------------
 cat(" BLOQUE 5.2: Categórica x Categórica ")
 
-if(exportar_pdf) pdf("Fase5_A_Cat_vs_Cat_Interaction.pdf", width = 10, height = 7)
+if(exportar_pdf) pdf("output/Fase5_A_Cat_vs_Cat_Interaction.pdf", width = 10, height = 7)
 
 for (par in pares_cat_cat) {
   cat1 <- par[1]
@@ -377,7 +376,7 @@ if(exportar_pdf) dev.off()
 # ------------------------------------------------------------------------------
 cat("BLOQUE 5.3: Numérica x Categórica")
 
-if(exportar_pdf) pdf("Fase5_Num_vs_Cat.pdf", width = 10, height = 7)
+if(exportar_pdf) pdf("output/Fase5_Num_vs_Cat.pdf", width = 10, height = 7)
 
 for (par in pares_num_cat) {
   num_var <- par[1]
@@ -408,3 +407,7 @@ for (par in pares_num_cat) {
   print(p)
 }
 if(exportar_pdf) dev.off()
+
+# Guardar versión para trabajar en R 
+saveRDS(df_final, file = "data/processed/cleaned.rds")
+
