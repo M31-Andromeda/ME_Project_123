@@ -1,8 +1,12 @@
+# Detectar archivos de texto automáticamente y normalizarlos a LF en el repositorio
 * text=auto
-*.R   text eol=lf
+
+# Archivos de código y datos en texto plano (forzar LF)
+*.R text eol=lf
 *.Rmd text eol=lf
 *.qmd text eol=lf
 *.csv text eol=lf
+# Archivos binarios (desactivar normalización de texto)
 *.rds binary
 *.RData binary
 *.xlsx binary
