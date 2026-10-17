@@ -1,6 +1,5 @@
 # Detectar archivos de texto automáticamente y normalizarlos a LF en el repositorio
 * text=auto
-
 # Archivos de código y datos en texto plano (forzar LF)
 *.R text eol=lf
 *.Rmd text eol=lf
@@ -10,5 +9,4 @@
 *.rds binary
 *.RData binary
 *.xlsx binary
-*.pdf binary
 *.pdf filter=lfs diff=lfs merge=lfs -text
