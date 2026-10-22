@@ -1,5 +1,6 @@
 
-paquetes <- c("mice", "tidyverse", "corrplot", "ranger", "plotly", "gplots", "rstatix", "MASS", "rcompanion", "car")
+paquetes <- c("MASS", "mice", "tidyverse", "corrplot", "ranger", "plotly",
+              "gplots", "rstatix", "rcompanion", "car", "forecast", "pROC")
 for (p in paquetes) {
   if (!require(p, character.only = TRUE)) {
     install.packages(p)
@@ -78,6 +79,13 @@ df_clean <- df_clean %>%
     # Errores de exámenes: Reemplazar directamente por NA
     questions_correct = if_else(questions_correct > questions_attempted, NA_real_, questions_correct)
   )
+
+##MODIFICACIÓN------ quitamos gente con un 0 en la nota, (son solo 6 personas, ya que la Gamma, no puede predecir con 0)
+num_ceros <- sum(df_clean$exam_score <= 0)
+cat("Número de valores <= 0 en exam_score:", num_ceros, "\n")
+
+df_clean <- subset(df_clean, exam_score > 0)
+##MODIFICAciÓN
 
 #====================================
 #BLOQUE 4 IMPUTACION POR MICE 

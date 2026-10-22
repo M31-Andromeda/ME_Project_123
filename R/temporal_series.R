@@ -1,5 +1,6 @@
 
-paquetes <- c("mice", "tidyverse", "corrplot", "ranger", "plotly", "gplots", "rstatix", "MASS", "rcompanion", "car", "forecast")
+paquetes <- c("MASS", "mice", "tidyverse", "corrplot", "ranger", "plotly",
+              "gplots", "rstatix", "rcompanion", "car", "forecast", "pROC")
 for (p in paquetes) {
   if (!require(p, character.only = TRUE)) {
     install.packages(p)
