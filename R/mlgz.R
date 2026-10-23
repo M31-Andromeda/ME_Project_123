@@ -278,3 +278,122 @@ cat("Especificidad (Suspensos bien clasificados):", round(espe, 4), "\n")
 m_bin_def <- m_bin_logit
 
 
+#===========================================
+#MODELOS FINALES
+#===========================================
+
+# ==============================================================================
+#  GRÁFICOS DE RESIDUOS (MODELO BINARIO)
+# ==============================================================================
+df_residuos <- data.frame(
+  Predictor = predict(m_bin_def, type = "link"),
+  Residuos = residuals(m_bin_def, type = "deviance")
+)
+
+p_residuos <- ggplot(df_residuos, aes(x = Predictor, y = Residuos)) +
+  geom_point(color = "#2A9D8F", alpha = 0.6, size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  geom_smooth(method = "loess", color = "#E63946", se = FALSE, linewidth = 1.2) +
+  labs(title = "Residuos de Devianza",
+       x = "Predictor Lineal",
+       y = "Residuos") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+print(p_residuos)
+
+
+# ==============================================================================
+# TEST DE YOUDEN Y GRÁFICO DE DENSIDAD
+# ==============================================================================
+coords_youden <- coords(roc_obj, x = "best", best.method = "youden", 
+                        ret = c("threshold", "specificity", "sensitivity"))
+print(coords_youden)
+
+clase_pred_youden <- ifelse(prob_pred >= coords_youden$threshold, 1, 0)
+table(Observado = df_final$pass_status, Predicho = clase_pred_youden)
+
+df_densidad <- data.frame(
+  Probabilidad = prob_pred,
+  Clase = as.factor(ifelse(df_final$pass_status %in% c(1, "Pass", "TRUE"), 
+                           "Aprobados", "Suspensos"))
+)
+
+
+ggplot(df_densidad, aes(x = Probabilidad, fill = Clase)) +
+  geom_density(alpha = 0.7, color = "black") +
+  geom_vline(xintercept = coords_youden$threshold, 
+             color = "black", linetype = "dashed", linewidth = 0.6) +
+  annotate("text", x = coords_youden$threshold - 0.08, y = 1.5, 
+           label = round(coords_youden$threshold, 2), 
+           color = "black", size = 4.5) +
+  labs(title = "Probabilidades por Clase",
+       x = "Probabilidad",
+       y = "Densidad") +
+  scale_fill_manual(values = c("Aprobados" = "#32CD32", "Suspensos" = "#FF6347")) +
+  theme_minimal() +
+  theme(legend.position = "top", 
+        legend.title = element_blank(),
+        plot.title = element_text(hjust = 0.5, face = "bold"))
+
+
+# ==============================================================================
+# QQ-PLOT (MODELO CONTINUO)
+# ==============================================================================
+df_qq <- data.frame(Residuos = rstandard(m_num_def))
+
+p_qq <- ggplot(df_qq, aes(sample = Residuos)) +
+  stat_qq(color = "#1D3557", alpha = 0.8, size = 2) +
+  stat_qq_line(color = "#E63946", linewidth = 1) +
+  labs(title = "QQ-Plot Normalidad",
+       x = "Cuantiles Teóricos",
+       y = "Cuantiles de los Residuos") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+print(p_qq)
+
+
+# ==============================================================================
+# GRÁFICOS DE VALORES PREDICHOS VS REALES
+# ==============================================================================
+
+# 1 Predicción del Modelo Continuo
+df_pred_cont <- data.frame(
+  Real = df_final$exam_score,
+  Predicho = predict(m_num_def, type = "response")
+)
+
+p_pred_cont <- ggplot(df_pred_cont, aes(x = Real, y = Predicho)) +
+  geom_point(color = "#1D3557", alpha = 0.6, size = 2) +
+  geom_abline(intercept = 0, slope = 1, color = "#E63946", linetype = "dashed", linewidth = 1) +
+  labs(title = "MGLZ Continuo",
+       x = "Puntuación Real",
+       y = "Puntuación Predicha") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+print(p_pred_cont)
+
+
+# 2 Predicción del Modelo Binario
+df_pred_bin <- data.frame(
+  Probabilidad = prob_pred,
+  Estado = as.factor(ifelse(df_final$pass_status %in% c(1, "Pass", "TRUE"), 
+                            "Aprobados", "Suspensos"))
+)
+
+p_pred_bin <- ggplot(df_pred_bin, aes(x = Estado, y = Probabilidad, fill = Estado)) +
+  geom_boxplot(alpha = 0.8, color = "black", outlier.color = "gray30", outlier.alpha = 0.6) +
+  geom_hline(yintercept = coords_youden$threshold, 
+             color = "black", linetype = "dashed", linewidth = 0.6) +
+  labs(title = "Clasificación Binaria",
+       x = "Estado Real",
+       y = "Probabilidad Predicha") +
+  scale_fill_manual(values = c("Aprobados" = "#32CD32", "Suspensos" = "#FF6347")) +
+  theme_minimal() +
+  theme(legend.position = "none", # Ocultamos leyenda porque el eje X ya lo explica
+        plot.title = element_text(hjust = 0.5, face = "bold"))
+
+print(p_pred_bin)
+
