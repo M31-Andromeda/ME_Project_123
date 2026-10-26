@@ -19,7 +19,9 @@ stopifnot(!anyNA(df_final), all(df_final$exam_score > 0))
 # Modelo Gaussiano (link identidad)
 m_num_gauss <- glm(exam_score ~ previous_exam_score + attendance_percentage +
                      assignment_completion_rate + time_management_score +
-                     family_income + exam_difficulty,
+                     family_income + study_hours_per_day + exam_difficulty +
+                     practice_tests_completed + exam_preparation_days +
+                     sleep_hours + stress_level + exam_anxiety_level,
                    family = gaussian(link = "identity"),
                    data   = df_final)
 
@@ -31,7 +33,9 @@ m_num_null <- glm(exam_score ~ 1, family = gaussian(link = "identity"), data   =
 # Modelo Gamma (link log)
 m_num_gamma <- glm(exam_score ~ previous_exam_score + attendance_percentage +
                      assignment_completion_rate + time_management_score +
-                     family_income + exam_difficulty,
+                     family_income + study_hours_per_day + exam_difficulty +
+                     practice_tests_completed + exam_preparation_days +
+                     sleep_hours + stress_level + exam_anxiety_level,
                    family = Gamma(link = "log"),
                    data   = df_final)
 # Modelo nulo Gamma (link log)
@@ -91,7 +95,8 @@ summary(m_num_gauss)
 m_num_full <- glm(exam_score ~ previous_exam_score + attendance_percentage +
                     assignment_completion_rate + time_management_score +
                     family_income + study_hours_per_day + exam_difficulty +
-                    practice_tests_completed + revision_frequency,
+                    practice_tests_completed + exam_preparation_days +
+                    sleep_hours + stress_level + exam_anxiety_level,
                   family = gaussian(link = "identity"),
                   data   = df_final)
 
@@ -105,7 +110,8 @@ cat("Pseudo-R2 full:", round(pseudo_r2(m_num_full), 4), "\n")
 m_num_def <- glm(exam_score ~ previous_exam_score + attendance_percentage +      
                    time_management_score +
                    study_hours_per_day + exam_difficulty +
-                   practice_tests_completed,
+                   practice_tests_completed + exam_preparation_days +
+                   sleep_hours + stress_level + exam_anxiety_level,
                  family = gaussian(link = "identity"),
                  data   = df_final)
 
@@ -145,19 +151,25 @@ abline(h = 0, lty = 2, col = "red", lwd = 2)
 # 1. Ajuste con los tres enlaces candidatos (Logit, Probit, Cloglog)
 m_bin_logit <- glm(pass_status ~ previous_exam_score + attendance_percentage +
                      time_management_score + study_hours_per_day +
-                     exam_difficulty + practice_tests_completed,
+                     exam_difficulty + practice_tests_completed +
+                     exam_preparation_days + sleep_hours +
+                     stress_level + exam_anxiety_level,
                    family = binomial(link = "logit"),
                    data   = df_final)
 
 m_bin_probit <- glm(pass_status ~ previous_exam_score + attendance_percentage +
                       time_management_score + study_hours_per_day +
-                      exam_difficulty + practice_tests_completed,
+                      exam_difficulty + practice_tests_completed +
+                      exam_preparation_days + sleep_hours +
+                      stress_level + exam_anxiety_level,
                     family = binomial(link = "probit"),
                     data   = df_final)
 
 m_bin_clog <- glm(pass_status ~ previous_exam_score + attendance_percentage +
                     time_management_score + study_hours_per_day +
-                    exam_difficulty + practice_tests_completed,
+                    exam_difficulty + practice_tests_completed +
+                    exam_preparation_days + sleep_hours +
+                    stress_level + exam_anxiety_level,
                   family = binomial(link = "cloglog"),
                   data   = df_final)
 
@@ -258,7 +270,7 @@ grid()
 
 # 1. Comprobación de poda: ¿aportan algo las variables excluidas?
 m_bin_full <- update(m_bin_logit, . ~ . + family_income +
-                       assignment_completion_rate + revision_frequency)
+                       assignment_completion_rate)
 
 cat("\n--- TEST DE PODA BINARIA (MODELO REDUCIDO VS COMPLETO) ---\n")
 print(anova(m_bin_logit, m_bin_full, test = "Chisq"))
