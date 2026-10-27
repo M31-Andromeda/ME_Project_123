@@ -1,4 +1,3 @@
-
 paquetes <- c("MASS", "mice", "tidyverse", "corrplot", "ranger", "plotly",
               "gplots", "rstatix", "rcompanion", "car", "forecast", "pROC")
 for (p in paquetes) {
@@ -51,16 +50,17 @@ df_clean <- df %>%
     across(all_of(c(vars_nominales, vars_binarias)), as.factor),
     
     # 2. Convertir Ordinales agrupadas
-    across(all_of(vars_ordinales_low_high), 
+    across(all_of(setdiff(vars_ordinales_low_high, "educational_app_usage")), 
            ~ factor(.x, levels = c("Low", "Medium", "High"), ordered = TRUE)),
+    educational_app_usage = factor(educational_app_usage, levels = c("Low", "Moderate", "High"), ordered = TRUE),
     
     # 3. Convertir las 9 Ordinales restantes con niveles únicos y específicos
     notes_quality = factor(notes_quality, levels = c("Poor", "Average", "Excellent"), ordered = TRUE),
     education_level = factor(education_level, levels = c("High School", "Undergraduate", "Postgraduate"), ordered = TRUE),
     parent_education = factor(parent_education, levels = c("High School", "Associate", "Bachelor", "Master", "Doctorate"), ordered = TRUE),
-    family_income = factor(family_income, levels = c("Low", "Middle", "High"), ordered = TRUE),
+    family_income = factor(family_income, levels = c("Low", "Lower-Middle", "Middle", "Upper-Middle", "High"), ordered = TRUE),
     exam_difficulty = factor(exam_difficulty, levels = c("Easy", "Medium", "Hard"), ordered = TRUE),
-    sleep_quality = factor(sleep_quality, levels = c("Poor", "Fair", "Excellent"), ordered = TRUE),
+    sleep_quality = factor(sleep_quality, levels = c("Poor", "Fair", "Good", "Excellent"), ordered = TRUE),
     revision_frequency = factor(revision_frequency, levels = c("Rarely", "Weekly", "Daily"), ordered = TRUE),
     break_frequency = factor(break_frequency, levels = c("Rarely", "Occasionally", "Frequently"), ordered = TRUE),
     performance_grade = factor(performance_grade, levels = c("F", "D", "C", "B", "A"), ordered = TRUE),
@@ -418,4 +418,3 @@ if(exportar_pdf) dev.off()
 
 # Guardar versión para trabajar en R 
 saveRDS(df_final, file = "data/processed/cleaned.rds")
-
