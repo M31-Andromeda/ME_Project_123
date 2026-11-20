@@ -12,13 +12,21 @@ df <- read.csv("data/raw/student_daily_attendance.csv")
 
 df.01M539 <- df[df$School.DBN == "01M539", ]
 
-#   Calculamos el porcentaje de asistencia para incluirlo en el análisis
+# ANÁLISIS DE ESTACIONARIEDAD
+
+# Calculamos el porcentaje de asistencia como variable a predecir
 df.01M539$PercentageOfAttendance = df.01M539$Present / df.01M539$Enrolled
 attendance <- ts(df.01M539$PercentageOfAttendance, start=1, end=178, frequency=5)
 plot(attendance)
 
 # Dibujamos los componentes de la serie
 plot(decompose(attendance)) 
+
+# Dibujamos un boxplot en periodos de 10 muestras para comprobar si la variancia es constante
+periodos <- ceiling(seq_along(df.01M539$PercentageOfAttendance) / 10)
+boxplot(df.01M539$PercentageOfAttendance ~ periodos,
+        xlab = "Periodo (10 muestras)", ylab = "PercentageOfAttendance",
+        main = "PercentageOfAttendance en periodos de 10 muestras")
 
 ##-- ACF y PACF
 par(mfrow=c(1,2))
