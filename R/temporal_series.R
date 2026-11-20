@@ -10,15 +10,23 @@ for (p in paquetes) {
 
 df <- read.csv("data/raw/student_daily_attendance.csv")
 
-df01M015 <- df[df$School.DBN == "01M015", ]
+df.01M539 <- df[df$School.DBN == "01M539", ]
 
-presence <- ts(df01M015$Present, start=1, end=178, frequency=5)
-plot(presence)
+#   Calculamos el porcentaje de asistencia para incluirlo en el análisis
+df.01M539$PercentageOfAttendance = df.01M539$Present / df.01M539$Enrolled
+attendance <- ts(df.01M539$PercentageOfAttendance, start=1, end=178, frequency=5)
+plot(attendance)
 
-##-- Dibuixem les components de la sèrie
-plot(decompose(presence)) 
+# Dibujamos los componentes de la serie
+plot(decompose(attendance)) 
 
-##-- ACF i PACF
+##-- ACF y PACF
 par(mfrow=c(1,2))
-acf(presence, ylim=c(-1,1), lagmax = 40)
-pacf(presence, ylim=c(-1,1), lagmax = 40)
+acf(attendance, ylim=c(-1,1), lagmax = 40)
+pacf(attendance, ylim=c(-1,1), lagmax = 40)
+
+##-- Ajustamos SARIMA
+sarima <- arima(df.01M539,
+                         order    = c(3,1,3), 
+                         seasonal = list(order = c(1,1,1), 
+                                         period = 12), include.mean = FALSE)
