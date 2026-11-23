@@ -28,13 +28,23 @@ boxplot(df.01M539$PercentageOfAttendance ~ periodos,
         xlab = "Periodo (10 muestras)", ylab = "PercentageOfAttendance",
         main = "PercentageOfAttendance en periodos de 10 muestras")
 
-##-- ACF y PACF
+# En los componentes se ve que la escala de la estacionalidad es muy pequeña
+
+##-- ACF y PACF de la serie temporal
 par(mfrow=c(1,2))
 acf(attendance, ylim=c(-1,1), lagmax = 40)
 pacf(attendance, ylim=c(-1,1), lagmax = 40)
 
 ##-- Ajustamos SARIMA
-sarima <- arima(df.01M539,
-                         order    = c(3,1,3), 
-                         seasonal = list(order = c(1,1,1), 
-                                         period = 12), include.mean = FALSE)
+sarima <- arima(attendance,
+                         order    = c(1,1,0), 
+                         seasonal = list(order = c(1,1,0), 
+                                         period = 89), include.mean = FALSE)
+res <- residuals(sarima)
+
+plot(res, main = 'sarima')
+
+##-- ACF i PACF
+par(mfrow=c(1,2))
+acf(res, ylim=c(-1,1), lag.max = 40)
+pacf(res, ylim=c(-1,1), lag.max = 40)
